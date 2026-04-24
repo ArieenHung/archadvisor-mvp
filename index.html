@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchAdvisor — MVP 切分策略討論文件</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{font-family:'Noto Sans TC','Inter',sans-serif;font-size:14px;color:#1a1917;background:#f5f4f0;line-height:1.65;min-height:100dvh}
+:root{
+  --c-bg:#f5f4f0;--c-surf:#faf9f7;--c-surf2:#fdfcfb;--c-off:#ede9e3;
+  --c-div:#dbd8d2;--c-bdr:#ccc9c2;--c-txt:#1a1917;--c-muted:#7a7872;--c-faint:#bab8b3;
+  --c-pri:#015f65;--c-pri-h:#013f44;--c-pri-hi:#cfdedd;
+  --c-gold:#b87c00;--c-gold-hi:#ede4cc;
+  --c-ora:#c26000;--c-ora-hi:#ead8c6;
+  --c-grn:#3a6e1a;--c-grn-hi:#d0dfca;
+  --c-pur:#6a30ab;--c-pur-hi:#d8cedf;
+  --c-blu:#005a8a;--c-blu-hi:#c4d6e3;
+  --r-sm:.375rem;--r-md:.5rem;--r-lg:.75rem;--r-xl:1rem;--r-full:9999px;
+  --sh-sm:0 1px 3px rgba(0,0,0,.07);--sh-md:0 4px 12px rgba(0,0,0,.09);
+}
+[data-dark]{
+  --c-bg:#141312;--c-surf:#1a1917;--c-surf2:#1e1d1b;--c-off:#222120;
+  --c-div:#252321;--c-bdr:#333230;--c-txt:#cdcbc7;--c-muted:#787672;--c-faint:#555350;
+  --c-pri:#4c9499;--c-pri-h:#2d7478;--c-pri-hi:#2b3d3e;
+  --c-gold:#e0a824;--c-gold-hi:#4a3e22;
+  --c-ora:#e89040;--c-ora-hi:#4e3b26;
+  --c-grn:#68a83e;--c-grn-hi:#324228;
+  --c-pur:#a468d8;--c-pur-hi:#3e2f52;
+  --c-blu:#4e8ec0;--c-blu-hi:#2a3e50;
+}
+a,button{transition:color .15s,background .15s,border-color .15s}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+.hdr{background:var(--c-surf);border-bottom:1px solid var(--c-bdr);padding:12px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh-sm)}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.logo{font-size:15px;font-weight:700;color:var(--c-txt);display:flex;align-items:center;gap:7px}
+.logo svg{color:var(--c-pri)}
+.pg-title{font-size:12px;color:var(--c-muted);padding-left:12px;border-left:1px solid var(--c-bdr)}
+.theme-btn{width:34px;height:34px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:var(--c-muted)}
+.theme-btn:hover{background:var(--c-off);color:var(--c-txt)}
+.tabs{background:var(--c-surf);border-bottom:1px solid var(--c-bdr);padding:0 32px;display:flex;gap:0}
+.tab{padding:11px 20px;font-size:13px;font-weight:500;color:var(--c-muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--c-txt)}
+.tab.active{color:var(--c-pri);border-bottom-color:var(--c-pri)}
+.main{max-width:1060px;margin:0 auto;padding:36px 32px}
+.pg{display:none}.pg.active{display:block}
+.sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-muted);margin-bottom:6px}
+.sec-title{font-size:clamp(1.4rem,2vw,2rem);font-weight:700;color:var(--c-txt);line-height:1.2}
+.sec-desc{margin-top:10px;font-size:13px;color:var(--c-muted);max-width:64ch;line-height:1.8}
+.sec-hdr{margin-bottom:28px}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap}
+.b-pri{background:var(--c-pri-hi);color:var(--c-pri)}
+.b-grn{background:var(--c-grn-hi);color:var(--c-grn)}
+.b-gold{background:var(--c-gold-hi);color:var(--c-gold)}
+.b-ora{background:var(--c-ora-hi);color:var(--c-ora)}
+.b-pur{background:var(--c-pur-hi);color:var(--c-pur)}
+.b-blu{background:var(--c-blu-hi);color:var(--c-blu)}
+.card{background:var(--c-surf);border:1px solid var(--c-bdr);border-radius:var(--r-xl);padding:20px 24px;box-shadow:var(--sh-sm)}
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:14px;margin-bottom:28px}
+.mod-card{background:var(--c-surf);border:1px solid var(--c-bdr);border-radius:var(--r-xl);padding:18px 20px;box-shadow:var(--sh-sm)}
+.mod-card.dim{opacity:.45}
+.mod-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mod-name{font-size:13px;font-weight:700;color:var(--c-txt)}
+.mod-tasks{font-size:11px;color:var(--c-muted);margin-bottom:10px}
+.mod-output-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-faint);margin-bottom:4px}
+.mod-output{font-size:12px;color:var(--c-txt);line-height:1.6;background:var(--c-surf2);border:1px solid var(--c-div);border-radius:var(--r-md);padding:10px 12px}
+.mod-output.thin{color:var(--c-muted);font-style:italic}
+.mod-output.full{color:var(--c-pri)}
+.pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.pc-box{background:var(--c-surf);border:1px solid var(--c-bdr);border-radius:var(--r-xl);padding:18px 20px}
+.pc-title{font-size:12px;font-weight:700;margin-bottom:10px}
+.pc-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.pc-list li{font-size:12px;color:var(--c-muted);padding-left:16px;position:relative;line-height:1.6}
+.pc-list li::before{content:'';width:6px;height:6px;border-radius:50%;position:absolute;left:0;top:6px}
+.pros .pc-list li::before{background:var(--c-grn)}
+.cons .pc-list li::before{background:var(--c-ora)}
+.risk{border:1px dashed var(--c-ora);background:var(--c-ora-hi);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:28px;font-size:12px;color:var(--c-txt);line-height:1.7}
+.risk strong{color:var(--c-ora)}
+.phases{display:flex;flex-direction:column;gap:16px;margin-bottom:28px}
+.ph-row{display:grid;grid-template-columns:110px 1fr;gap:20px;align-items:start}
+.ph-label{text-align:right;padding-top:16px}
+.ph-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.ph-sub{font-size:10px;color:var(--c-faint);margin-top:2px}
+.ph-content{border-left:2px solid var(--c-bdr);padding-left:20px;position:relative;padding-bottom:4px}
+.ph-dot{width:9px;height:9px;border-radius:50%;border:2px solid currentColor;background:var(--c-bg);position:absolute;left:-6px;top:16px}
+.ph1 .ph-name,.ph1 .ph-dot{color:var(--c-pri)}
+.ph1 .ph-content{border-color:var(--c-pri)}
+.ph2 .ph-name,.ph2 .ph-dot{color:var(--c-gold)}
+.ph2 .ph-content{border-color:var(--c-gold)}
+.ph3 .ph-name,.ph3 .ph-dot{color:var(--c-ora)}
+.ph3 .ph-content{border-color:var(--c-ora)}
+.ph-card{background:var(--c-surf);border:1px solid var(--c-bdr);border-radius:var(--r-xl);padding:18px 22px;box-shadow:var(--sh-sm)}
+.ph-card-title{font-size:14px;font-weight:700;color:var(--c-txt);margin-bottom:6px}
+.ph-card-desc{font-size:12px;color:var(--c-muted);margin-bottom:14px;line-height:1.7}
+.ph-items{display:flex;flex-direction:column;gap:8px}
+.ph-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--c-surf2);border:1px solid var(--c-div);border-radius:var(--r-md)}
+.ph-dot2{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ph-item-txt{font-size:12px;color:var(--c-txt);line-height:1.6}
+.ph-item-txt span{color:var(--c-muted)}
+.ph-validate{margin-top:12px;padding:10px 14px;border:1px dashed var(--c-bdr);border-radius:var(--r-md);font-size:12px;color:var(--c-muted);line-height:1.7}
+.ph-validate strong{color:var(--c-txt)}
+.q-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:12px}
+.q-card{background:var(--c-surf);border:1px solid var(--c-bdr);border-radius:var(--r-xl);padding:16px 18px}
+.q-num{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-faint);margin-bottom:6px}
+.q-title{font-size:13px;font-weight:700;color:var(--c-txt);margin-bottom:6px}
+.q-desc{font-size:12px;color:var(--c-muted);line-height:1.7}
+.sep{height:1px;background:var(--c-div);margin:32px 0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:11px 14px;border-bottom:1px solid var(--c-div);background:var(--c-surf2);font-weight:600;color:var(--c-txt)}
+td{padding:11px 14px;border-bottom:1px solid var(--c-div);color:var(--c-muted);line-height:1.6;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr.hl td{background:var(--c-pri-hi);color:var(--c-txt)}
+.coll-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:14px 20px;background:var(--c-surf);border:1px solid var(--c-bdr);border-radius:var(--r-xl);margin-bottom:8px;box-shadow:var(--sh-sm)}
+.coll-hdr:hover{background:var(--c-off)}
+.coll-hdr-left{display:flex;align-items:center;gap:10px}
+.coll-title{font-size:14px;font-weight:700;color:var(--c-txt)}
+.coll-sub{font-size:12px;color:var(--c-muted);margin-top:2px}
+.coll-arrow{font-size:14px;color:var(--c-muted);transition:transform .2s}
+.coll-body{display:none;padding:18px 22px;background:var(--c-surf);border:1px solid var(--c-bdr);border-top:none;border-radius:0 0 var(--r-xl) var(--r-xl);margin-bottom:16px}
+.coll-body.open{display:block}
+.coll-hdr.open .coll-arrow{transform:rotate(180deg)}
+.coll-hdr.open{border-radius:var(--r-xl) var(--r-xl) 0 0;border-bottom-color:var(--c-div)}
+@media(max-width:680px){
+  .main{padding:24px 16px}
+  .hdr{padding:10px 16px}
+  .tabs{padding:0 16px;overflow-x:auto}
+  .pros-cons{grid-template-columns:1fr}
+  .ph-row{grid-template-columns:1fr}
+  .ph-label{text-align:left;padding-top:0;margin-bottom:6px}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="14" width="6" height="7" rx="1" fill="currentColor" opacity=".3"/>
+        <rect x="9" y="9" width="6" height="12" rx="1" fill="currentColor" opacity=".6"/>
+        <rect x="15" y="4" width="6" height="17" rx="1" fill="currentColor"/>
+      </svg>ArchAdvisor
+    </div>
+    <span class="pg-title">MVP 切分策略討論文件</span>
+  </div>
+  <button class="theme-btn" id="themeBtn"></button>
+</header>
+<nav class="tabs">
+  <div class="tab active" data-pg="pg-compare">三種策略比較</div>
+  <div class="tab" data-pg="pg-vertical">縱切</div>
+  <div class="tab" data-pg="pg-module">橫切</div>
+  <div class="tab" data-pg="pg-core">M3–M5 顧問閉環</div>
+  <div class="tab" data-pg="pg-questions">與建築師確認</div>
+</nav>
+<main class="main">
+  
+<div id="pg-compare" class="pg active">
+  <div class="sec-hdr">
+    <div class="sec-label">MVP 切分策略</div>
+    <div class="sec-title">三種路徑，各有取捨</div>
+    <div class="sec-desc">本文件的目的是讓你和建築師一起討論 MVP 怎麼切——每條路徑都有成立的理由，沒有唯一正解。請依據團隊資源與最想優先驗證的假設來選擇。</div>
+  </div>
+  <div class="card" style="margin-bottom:24px;overflow-x:auto;">
+    <table>
+      <thead><tr><th>切法</th><th>範圍</th><th>最大優點</th><th>最大風險</th><th>適用情境</th></tr></thead>
+      <tbody>
+        <tr><td><strong>縱切</strong><br><span style="font-size:11px;color:var(--c-muted)">M1–M6 全做，每個輕量化</span></td><td>全流程，但每個功能只做最薄的輸出</td><td>可驗證完整工作流是否跑得通；能觸發跨模組連鎖痛點</td><td>「只警告不建議」體驗可能比沒有工具更令人沮喪</td><td>想先確認整體流程假設是否成立</td></tr>
+        <tr><td><strong>橫切</strong><br><span style="font-size:11px;color:var(--c-muted)">M1、M2 先做深</span></td><td>先做獨立性最高的模組，再逐步串接</td><td>失敗成本低；可多團隊並行；先驗證單點付費意願</td><td>M5 連鎖影響這個最大痛點根本不會出現</td><td>團隊資源有限，需要快速驗證單點商業價值</td></tr>
+        <tr class="hl"><td><strong>M3–M5 顧問閉環</strong><br><span style="font-size:11px">聚焦設計輔助顧問定位</span></td><td>骨架→標準層配置→連鎖影響的合規診斷閉環</td><td>直接驗證最高付費意願的顧問定位；每次修改都觸發</td><td>需要 CAD 匯入作為前提；M3/M4/M5 缺一不可</td><td>確信設計顧問閉環是核心價值，願意承擔較高技術門檻</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sec-hdr" style="margin-top:36px">
+    <div class="sec-label">六個功能模組</div>
+    <div class="sec-title">模組定義總覽</div>
+    <div class="sec-desc">三種切法都以這六個模組為單位。縱切全做但輕量；橫切先做 M1/M2；M3–M5 顧問閉環聚焦 M3 到 M5。</div>
+  </div>
+  <div class="mod-grid">
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M1 法規分析</span><span class="badge b-pri">M1</span></div><div class="mod-tasks">AT-01a, AT-01b, AT-02, AT-03, AT-04, AT-05, AT-06, AT-07</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">自動彙整適用計畫、標示衝突、產出設計邊界條件</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M2 基地分析、面積表建置</span><span class="badge b-grn">M2</span></div><div class="mod-tasks">AT-08, AT-09, AT-19</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">自動產出可建範圍圖、地下開挖上限、面積表動態重跑</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M3 基本骨架（Core 柱位）地下層</span><span class="badge b-gold">M3</span></div><div class="mod-tasks">AT-10, AT-11, AT-12, AT-13, AT-14, AT-15, AT-15a</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">車道可行性驗算、停車最佳化、柱位確立、北方日照早期確認、Core 定位建議</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M4 標準層配置同步驗算</span><span class="badge b-pur">M4</span></div><div class="mod-tasks">AT-16, AT-17, AT-17b, AT-18, AT-20, AT-21</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">步行距離即時 Live Check 含移位建議、免計容積 Tracker、日照陰影驗證</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M5 連鎖影響橫切服務</span><span class="badge b-ora">M5</span></div><div class="mod-tasks">AT-23, AT-24</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">自動預判受影響元素、建議最低代價修改策略</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M6 業主溝通</span><span class="badge b-blu">M6</span></div><div class="mod-tasks">AT-22, AT-25, AT-26</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">一樓跨層整合、需求變更可行性評估、面積表版本提報</div></div>
+  </div>
+</div>
+
+<div id="pg-vertical" class="pg">
+  <div class="sec-hdr">
+    <div class="sec-label">切法一</div>
+    <div class="sec-title">縱切：M1–M6 全做，每個輕量化</div>
+    <div class="sec-desc">M1 到 M6 全部覆蓋，但每個模組只做「有問題 / 沒問題 + 差多少」的二元輸出，不給修改建議，不給連鎖影響。設計師從接案一路可以用到業主提報，但每個環節的深度都是最薄的版本。</div>
+  </div>
+  <div class="pros-cons">
+    <div class="pc-box pros"><div class="pc-title" style="color:var(--c-grn)">✅ 優點</div><ul class="pc-list"><li>可驗證完整工作流是否跑得通，從 M1 到 M6 都有產出</li><li>能觸發跨模組的連鎖痛點，例如 M3 骨架改動影響 M4 驗算</li><li>設計師看到的是完整流程，比較容易評估整體價值</li><li>開發分工清楚，各模組可以小組並行</li></ul></div>
+    <div class="pc-box cons"><div class="pc-title" style="color:var(--c-ora)">⚠️ 缺點</div><ul class="pc-list"><li>每個功能都粗糙，沒有任何一個做到足以替代現有工作方式</li><li>設計師一直看到警告卻不知道怎麼辦，挫折感可能高於沒有工具</li><li>資源分散，很難在任何一個模組建立深度競爭壁壘</li><li>付費意願難以驗證，因為每個功能都不完整</li></ul></div>
+  </div>
+  <div class="risk"><strong>最大風險：</strong>「只警告不建議」的體驗。設計師知道 53m 超標了，但系統不告訴他梯廳要往哪移。這個體驗可能讓設計師覺得系統只是多了一個需要關注的警示視窗，而不是真正的助手。</div>
+  <div class="sec-hdr"><div class="sec-label">模組輕量化定義</div><div class="sec-title">每個模組的最薄輸出</div></div>
+  <div class="mod-grid">
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M1 法規分析</span><span class="badge b-pri">M1</span></div><div class="mod-tasks">AT-01a, AT-01b, AT-02, AT-03, AT-04, AT-05, AT-06, AT-07</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">列出適用法規清單，邊界條件手動填</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M2 基地分析、面積表建置</span><span class="badge b-grn">M2</span></div><div class="mod-tasks">AT-08, AT-09, AT-19</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">顯示退縮線 overlay，不自動計算可建面積</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M3 基本骨架（Core 柱位）地下層</span><span class="badge b-gold">M3</span></div><div class="mod-tasks">AT-10, AT-11, AT-12, AT-13, AT-14, AT-15, AT-15a</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">只標示 50m 步行距離邊界圓，設計師自己選核心位置</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M4 標準層配置同步驗算</span><span class="badge b-pur">M4</span></div><div class="mod-tasks">AT-16, AT-17, AT-17b, AT-18, AT-20, AT-21</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">只顯示「合規 / 不合規 + 超標多少」，不給移位建議</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M5 連鎖影響橫切服務</span><span class="badge b-ora">M5</span></div><div class="mod-tasks">AT-23, AT-24</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">只列出「這個修改會動到哪些元素」，不給建議</div></div>
+    <div class="mod-card"><div class="mod-head"><span class="mod-name">M6 業主溝通</span><span class="badge b-blu">M6</span></div><div class="mod-tasks">AT-22, AT-25, AT-26</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">靜態輸出面積表，版本手動管理</div></div>
+  </div>
+  <div class="sec-hdr" style="margin-top:8px"><div class="sec-label">開發路徑</div><div class="sec-title">三階段 Roadmap</div></div>
+  <div class="phases">
+    <div class="ph-row ph1"><div class="ph-label"><div class="ph-name">Phase 1</div><div class="ph-sub">3–4 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">M1 + M2 + M3 輕量版上線</div><div class="ph-card-desc">建立從法規查找、基地分析到骨架配置的輕量流程，每個環節只做二元合規輸出。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-pri)"></div><div class="ph-item-txt"><strong>M1</strong><span>：適用法規清單輸出，邊界條件手動填</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-grn)"></div><div class="ph-item-txt"><strong>M2</strong><span>：退縮線 overlay 顯示</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-gold)"></div><div class="ph-item-txt"><strong>M3</strong><span>：50m 步行距離邊界圓標示</span></div></div></div><div class="ph-validate"><strong>驗證：</strong>設計師是否願意在案件起點就進入系統，還是覺得太早進來沒有價值？</div></div></div></div>
+    <div class="ph-row ph2"><div class="ph-label"><div class="ph-name">Phase 2</div><div class="ph-sub">3–4 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">M4 + M5 + M6 輕量版補足</div><div class="ph-card-desc">補足標準層配置階段的合規輸出，讓完整工作流跑通。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-pur)"></div><div class="ph-item-txt"><strong>M4</strong><span>：步行距離、日照合規 / 不合規 + 超標量顯示</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>M5</strong><span>：修改受影響元素清單（不給建議）</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-blu)"></div><div class="ph-item-txt"><strong>M6</strong><span>：靜態面積表輸出</span></div></div></div><div class="ph-validate"><strong>驗證：</strong>完整流程跑通後，設計師整體付費意願是否有提升？哪個模組最常被使用？</div></div></div></div>
+    <div class="ph-row ph3"><div class="ph-label"><div class="ph-name">Phase 3</div><div class="ph-sub">4–6 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">依使用率決定哪個模組先升級為完整版</div><div class="ph-card-desc">依 Phase 1–2 的使用資料，決定優先把哪個模組從「輕量版」升級為「給建議版」。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-txt)"></div><div class="ph-item-txt">最高使用率的模組優先升級<span>，加入修改建議與連鎖影響</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-txt)"></div><div class="ph-item-txt">逐步往 M3–M5 顧問閉環路徑靠攏</div></div></div></div></div></div>
+  </div>
+</div>
+
+<div id="pg-module" class="pg">
+  <div class="sec-hdr"><div class="sec-label">切法二</div><div class="sec-title">橫切：M1、M2 先做深，再逐步串接</div><div class="sec-desc">挑出獨立性最高的模組——M1 法規分析、M2 基地分析——先做到足夠深度，讓設計師在這兩個環節真的用得起來並願意付費。確認商業價值後，再逐步往後串接。</div></div>
+  <div class="pros-cons">
+    <div class="pc-box pros"><div class="pc-title" style="color:var(--c-grn)">✅ 優點</div><ul class="pc-list"><li>失敗成本低：M1/M2 做不起來，損失僅限於這兩個模組</li><li>可多團隊並行：M1 和 M2 互不依賴，可同步開發</li><li>可先驗證「前期資料收斂」的付費意願，再決定是否往後延伸</li><li>M1 每案都必須執行，是最穩定的高頻入口</li></ul></div>
+    <div class="pc-box cons"><div class="pc-title" style="color:var(--c-ora)">⚠️ 缺點</div><ul class="pc-list"><li>M5 連鎖影響（最大痛點）根本不會出現在 MVP 裡</li><li>M1/M2 的「顧問性質」較弱，偏資料整理而非設計判斷</li><li>驗到的是「前期工具」的付費意願，不是「設計顧問」的付費意願</li><li>後期串接 M3–M5 需要重新設計資料模型，可能有技術債</li></ul></div>
+  </div>
+  <div class="risk"><strong>定位風險：</strong>M1/M2 做深之後，市場定位容易滑向「法規查找工具」而不是「設計輔助顧問」。這兩個定位的付費意願、客群、競爭對手都不同，需要在 Phase 1 就明確選邊。</div>
+  <div class="sec-hdr"><div class="sec-label">模組範圍</div><div class="sec-title">各 Phase 模組狀態</div></div>
+  <div style="margin-bottom:8px;font-size:12px;color:var(--c-muted)">灰色 = 該 Phase 尚未開發</div>
+  <div class="coll-hdr open"><div class="coll-hdr-left"><span class="badge b-grn">Phase 1</span><div><div class="coll-title">M1 + M2 完整版</div><div class="coll-sub">3–4 個月 · 驗證前期工具付費意願</div></div></div><span class="coll-arrow">▼</span></div>
+  <div class="coll-body open">
+    <div class="mod-grid">
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M1 法規分析</span><span class="badge b-pri">M1</span></div><div class="mod-tasks">AT-01a, AT-01b, AT-02, AT-03, AT-04, AT-05, AT-06, AT-07</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">完整彙整適用計畫、標示衝突、產出設計邊界條件（人工輔助版）</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M2 基地分析、面積表建置</span><span class="badge b-grn">M2</span></div><div class="mod-tasks">AT-08, AT-09, AT-19</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">可建範圍圖自動產出、退縮線空間化、面積表初版</div></div>
+      <div class="mod-card dim"><div class="mod-head"><span class="mod-name">M3 基本骨架（Core 柱位）地下層</span><span class="badge b-gold">M3</span></div><div class="mod-tasks">AT-10, AT-11, AT-12, AT-13, AT-14, AT-15, AT-15a</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">只標示 50m 步行距離邊界圓，設計師自己選核心位置</div></div>
+      <div class="mod-card dim"><div class="mod-head"><span class="mod-name">M4 標準層配置同步驗算</span><span class="badge b-pur">M4</span></div><div class="mod-tasks">AT-16, AT-17, AT-17b, AT-18, AT-20, AT-21</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">只顯示「合規 / 不合規 + 超標多少」，不給移位建議</div></div>
+      <div class="mod-card dim"><div class="mod-head"><span class="mod-name">M5 連鎖影響橫切服務</span><span class="badge b-ora">M5</span></div><div class="mod-tasks">AT-23, AT-24</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">只列出「這個修改會動到哪些元素」，不給建議</div></div>
+      <div class="mod-card dim"><div class="mod-head"><span class="mod-name">M6 業主溝通</span><span class="badge b-blu">M6</span></div><div class="mod-tasks">AT-22, AT-25, AT-26</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">靜態輸出面積表，版本手動管理</div></div>
+    </div>
+    <div class="ph-validate"><strong>驗證指標：</strong>設計師是否在案件起點主動進入系統？M1 完成後是否省下至少 50% 法規查找時間？是否有付費意願？</div>
+  </div>
+  <div class="coll-hdr"><div class="coll-hdr-left"><span class="badge b-gold">Phase 2</span><div><div class="coll-title">M3 + M4 加入</div><div class="coll-sub">3–4 個月 · 擴展到骨架與標準層驗算</div></div></div><span class="coll-arrow">▼</span></div>
+  <div class="coll-body">
+    <div class="mod-grid">
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M1 法規分析</span><span class="badge b-pri">M1</span></div><div class="mod-tasks">AT-01a, AT-01b, AT-02, AT-03, AT-04, AT-05, AT-06, AT-07</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">同 Phase 1</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M2 基地分析、面積表建置</span><span class="badge b-grn">M2</span></div><div class="mod-tasks">AT-08, AT-09, AT-19</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">同 Phase 1</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M3 基本骨架（Core 柱位）地下層</span><span class="badge b-gold">M3</span></div><div class="mod-tasks">AT-10, AT-11, AT-12, AT-13, AT-14, AT-15, AT-15a</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">車道可行性驗算、停車最佳化、柱位確立、北方日照確認、Core 定位</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M4 標準層配置同步驗算</span><span class="badge b-pur">M4</span></div><div class="mod-tasks">AT-16, AT-17, AT-17b, AT-18, AT-20, AT-21</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">步行距離即時 Live Check 含移位建議、免計容積 Tracker、日照陰影驗證</div></div>
+      <div class="mod-card dim"><div class="mod-head"><span class="mod-name">M5 連鎖影響橫切服務</span><span class="badge b-ora">M5</span></div><div class="mod-tasks">AT-23, AT-24</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">只列出「這個修改會動到哪些元素」，不給建議</div></div>
+      <div class="mod-card dim"><div class="mod-head"><span class="mod-name">M6 業主溝通</span><span class="badge b-blu">M6</span></div><div class="mod-tasks">AT-22, AT-25, AT-26</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output thin">靜態輸出面積表，版本手動管理</div></div>
+    </div>
+    <div class="ph-validate"><strong>驗證指標：</strong>設計師是否跨 Phase 1 繼續使用？M3/M4 的合規驗算是否真的減少設計師回推次數？</div>
+  </div>
+  <div class="coll-hdr"><div class="coll-hdr-left"><span class="badge b-ora">Phase 3</span><div><div class="coll-title">M5 + M6 串接，完整平台</div><div class="coll-sub">4–6 個月 · 連鎖影響與業主溝通</div></div></div><span class="coll-arrow">▼</span></div>
+  <div class="coll-body">
+    <div class="mod-grid">
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M1 法規分析</span><span class="badge b-pri">M1</span></div><div class="mod-tasks">AT-01a, AT-01b, AT-02, AT-03, AT-04, AT-05, AT-06, AT-07</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">自動彙整適用計畫、標示衝突、產出設計邊界條件</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M2 基地分析、面積表建置</span><span class="badge b-grn">M2</span></div><div class="mod-tasks">AT-08, AT-09, AT-19</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">自動產出可建範圍圖、地下開挖上限、面積表動態重跑</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M3 基本骨架（Core 柱位）地下層</span><span class="badge b-gold">M3</span></div><div class="mod-tasks">AT-10, AT-11, AT-12, AT-13, AT-14, AT-15, AT-15a</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">車道可行性驗算、停車最佳化、柱位確立、北方日照確認、Core 定位建議</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M4 標準層配置同步驗算</span><span class="badge b-pur">M4</span></div><div class="mod-tasks">AT-16, AT-17, AT-17b, AT-18, AT-20, AT-21</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">步行距離即時 Live Check 含移位建議、免計容積 Tracker、日照陰影驗證</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M5 連鎖影響橫切服務</span><span class="badge b-ora">M5</span></div><div class="mod-tasks">AT-23, AT-24</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">自動預判受影響元素、建議最低代價修改策略</div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-name">M6 業主溝通</span><span class="badge b-blu">M6</span></div><div class="mod-tasks">AT-22, AT-25, AT-26</div><div class="mod-output-label">MVP 輸出</div><div class="mod-output full">一樓跨層整合、需求變更可行性評估、面積表版本提報</div></div>
+    </div>
+    <div class="ph-validate"><strong>護城河：</strong>M5 連鎖影響一旦做深，是整個平台最難複製的能力，也是「設計輔助顧問」定位的核心壁壘。</div>
+  </div>
+</div>
+  
+ <div id="pg-core" class="pg">
+  <div class="sec-hdr"><div class="sec-label">切法三</div><div class="sec-title">M3–M5 顧問閉環：聚焦設計輔助顧問定位</div><div class="sec-desc">聚焦 M3（骨架）→ M4（標準層配置同步驗算）→ M5（連鎖影響橫切服務）這條核心鏈。系統在設計師配置標準層時，同步偵測合規問題、給出具體繪圖修改建議，並標示修改的連鎖影響範圍。M3/M4/M5 缺一不可，這三個合在一起才是完整的設計顧問閉環。</div></div>
+  <div class="pros-cons">
+    <div class="pc-box pros"><div class="pc-title" style="color:var(--c-grn)">✅ 優點</div><ul class="pc-list"><li>直接驗證最高付費意願的定位：設計師「修改 + 連鎖影響判斷」最貴最難</li><li>每次設計修改都重新觸發，付費意願是持續性的而不是一次性的</li><li>M5 連鎖影響是最難複製的護城河，從一開始就建立壁壘</li><li>定位清晰：設計輔助顧問，而非法規查找工具或計算工具</li></ul></div>
+    <div class="pc-box cons"><div class="pc-title" style="color:var(--c-ora)">⚠️ 缺點</div><ul class="pc-list"><li>需要 CAD 匯入作為前提，技術門檻比前兩種高</li><li>M3/M4/M5 強依賴，任何一個做不好整個閉環就不完整</li><li>修改建議的「可信度」是關鍵挑戰——設計師是否真的採納？</li><li>前期需要較多設計師配合（標記梯廳、戶型邊界等）</li></ul></div>
+  </div>
+  <div class="risk"><strong>前提條件：</strong>CAD 匯入策略決定這條路的可行性。MVP 採用「手動標記關鍵點」（DWG 作為底圖，設計師點選梯廳、戶型邊界、外框線），技術門檻最低，但每次版本更新需重新標記是主要摩擦點。</div>
+  <div class="sec-hdr" style="margin-top:28px"><div class="sec-label">核心模組展開</div><div class="sec-title">M3 + M4 + M5 詳細內容</div></div>
+  <div class="coll-hdr open"><div class="coll-hdr-left"><span class="badge b-gold">M3</span><div><div class="coll-title">基本骨架（Core 柱位）地下層</div><div class="coll-sub">AT-10, AT-11, AT-12, AT-13, AT-14, AT-15, AT-15a</div></div></div><span class="coll-arrow">▼</span></div>
+  <div class="coll-body open">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">偵測什麼</div><ul style="list-style:none;display:flex;flex-direction:column;gap:6px;color:var(--c-muted)"><li>• 標準層外框是否突破退縮線、建蔽率上限（AT-15a）</li><li>• 北方日照是否違反第 39-1 條（AT-14）</li><li>• Core 候選位置的步行距離是否在 50m 門檻內（AT-15）</li></ul></div>
+      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">修改建議範例</div><div style="background:var(--c-surf2);border:1px solid var(--c-div);border-radius:8px;padding:10px 12px;color:var(--c-txt);line-height:1.7">「北向外牆超出日照退縮線 0.8m。建議將 N 側外框往內縮 1 柱距，影響最高樓層計算面寬，需重確認容積使用率。」</div></div>
+    </div>
+  </div>
+  <div class="coll-hdr open" style="margin-top:8px"><div class="coll-hdr-left"><span class="badge b-pur">M4</span><div><div class="coll-title">標準層配置同步驗算</div><div class="coll-sub">AT-16, AT-17, AT-17b, AT-18, AT-20, AT-21</div></div></div><span class="coll-arrow">▼</span></div>
+  <div class="coll-body open">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">偵測什麼</div><ul style="list-style:none;display:flex;flex-direction:column;gap:6px;color:var(--c-muted)"><li>• 任一住戶到逃生梯的最長步行距離是否超過 50m（AT-17b, AT-20）</li><li>• 免計容積額度是否即將超限（AT-18）</li><li>• 日照陰影是否合規（AT-21）</li></ul></div>
+      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">修改建議範例</div><div style="background:var(--c-surf2);border:1px solid var(--c-div);border-radius:8px;padding:10px 12px;color:var(--c-txt);line-height:1.7">「B4 戶步行距離 53m，超標 3m。建議將梯廳 T2 往東移 1.5 柱距（約 4m），可覆蓋 B4 並維持 B1–B3 合規。」</div></div>
+    </div>
+  </div>
+  <div class="coll-hdr open" style="margin-top:8px"><div class="coll-hdr-left"><span class="badge b-ora">M5</span><div><div class="coll-title">連鎖影響橫切服務</div><div class="coll-sub">AT-23, AT-24 · 貫穿全流程，每次修改都觸發</div></div></div><span class="coll-arrow">▼</span></div>
+  <div class="coll-body open">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">觸發時機</div><ul style="list-style:none;display:flex;flex-direction:column;gap:6px;color:var(--c-muted)"><li>• M3 發現北方日照不合規，需調整外框 → M5 立刻顯示連鎖</li><li>• M4 發現步行距離超標，需移動梯廳 → M5 立刻顯示連鎖</li><li>• 任何重大配置調整前都觸發（AT-24）</li></ul></div>
+      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">連鎖影響範例</div><div style="background:var(--c-surf2);border:1px solid var(--c-div);border-radius:8px;padding:10px 12px;color:var(--c-txt);line-height:1.7">「移動梯廳 T2 將連動：戶型 B3 隔間（需重畫）、免計容積額度（−2.3㎡）、北方日照退縮（需重確認）。」</div></div>
+    </div>
+  </div>
+  <div class="sep"></div>
+  <div class="sec-hdr"><div class="sec-label">CAD 匯入策略</div><div class="sec-title">三層次路徑</div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px">
+    <div class="card" style="border-color:var(--c-pri)"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-pri);margin-bottom:8px">MVP — 採用</div><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--c-txt)">③ 手動標記關鍵點</div><div style="font-size:12px;color:var(--c-muted);line-height:1.7">DWG 作為底圖，設計師點選梯廳、戶型邊界、外框線，系統讀取座標後執行診斷。技術門檻最低，可快速驗證顧問邏輯。</div><div style="margin-top:8px;font-size:11px;color:var(--c-faint)">主要摩擦：每次版本更新需重新標記</div></div>
+    <div class="card"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-gold);margin-bottom:8px">Phase 2 — 升級路徑</div><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--c-txt)">② 圖層標記輔助</div><div style="font-size:12px;color:var(--c-muted);line-height:1.7">約定圖層命名規範（STAIR、UNIT_BOUNDARY、ENVELOPE），系統自動讀取特定圖層，無需手動點選。</div><div style="margin-top:8px;font-size:11px;color:var(--c-faint)">需設計師配合命名；可提供 CAD 外掛</div></div>
+    <div class="card"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-ora);margin-bottom:8px">Phase 3 — 長期護城河</div><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--c-txt)">① 自動幾何解析</div><div style="font-size:12px;color:var(--c-muted);line-height:1.7">AI + 規則引擎自動識別牆體、梯廳、戶型邊界，不需設計師任何額外操作。</div><div style="margin-top:8px;font-size:11px;color:var(--c-faint)">識別率穩定度是核心挑戰；一旦達成壁壘極高</div></div>
+  </div>
+  <div class="sec-hdr"><div class="sec-label">開發路徑</div><div class="sec-title">三階段 Roadmap</div></div>
+  <div class="phases">
+    <div class="ph-row ph1"><div class="ph-label"><div class="ph-name">Phase 1</div><div class="ph-sub">3–4 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">M3 + M4 + M5 合體：標準層合規診斷 MVP</div><div class="ph-card-desc">CAD 手動標記（方案③）為前提，同步偵測骨架與標準層的合規狀態，給出繪圖修改建議，並標示連鎖影響。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-gold)"></div><div class="ph-item-txt"><strong>M3</strong><span>：北方日照合規確認 + 外框調整建議；Core 候選步行距離概抓</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-pur)"></div><div class="ph-item-txt"><strong>M4</strong><span>：步行距離即時 Live Check + 移位建議；免計容積 Tracker；日照陰影驗證</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>M5</strong><span>：M3/M4 觸發修改時，同步顯示連鎖影響元素清單與影響層級</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-faint)"></div><div class="ph-item-txt"><span>CAD 底圖匯入 + 手動標記介面（梯廳、戶型邊界、外框線）</span></div></div></div><div class="ph-validate"><strong>驗證指標：</strong>設計師採納修改建議率 > 60%；每案節省回推次數 50% 以上。</div></div></div></div>
+    <div class="ph-row ph2"><div class="ph-label"><div class="ph-name">Phase 2</div><div class="ph-sub">3–4 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">M1 + M2 串接 + CAD 圖層標記升級</div><div class="ph-card-desc">從案件起點進入系統，法規收斂的結果直接餵給 M3–M5；同時升級 CAD 匯入至方案②，減少手動標記摩擦。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-pri)"></div><div class="ph-item-txt"><strong>M1</strong><span>：適用法規自動彙整，結果直接作為 M3 的合規依據</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-grn)"></div><div class="ph-item-txt"><strong>M2</strong><span>：可建範圍自動產出，直接作為 M3 骨架的空間約束</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-faint)"></div><div class="ph-item-txt"><span>CAD 圖層標記輔助（方案②）：約定命名規範 + CAD 外掛</span></div></div></div><div class="ph-validate"><strong>驗證指標：</strong>同一案子跨多個設計迴圈的留存率；M1 法規收斂是否確實減少 M3 的錯誤發生率。</div></div></div></div>
+    <div class="ph-row ph3"><div class="ph-label"><div class="ph-name">Phase 3</div><div class="ph-sub">4–6 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">自動 DWG 解析 + M5 升級 + M6 串接</div><div class="ph-card-desc">消除所有手動輸入摩擦，M5 從「列出清單」升級為「建議最低代價修改策略」，形成完整平台。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>自動幾何解析（方案①）</strong><span>：匯入 DWG 即自動診斷，無需任何標記</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>M5 升級</strong><span>：從「受影響清單」→「自動建議最低代價修改策略」</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-blu)"></div><div class="ph-item-txt"><strong>M6 串接</strong><span>：跨層整合、業主溝通、面積表版本提報</span></div></div></div><div class="ph-validate"><strong>護城河：</strong>自動 DWG 解析一旦穩定，競爭者幾乎無法在短期內複製。這是整個平台最難建立也最難被攻破的壁壘。</div></div></div></div>
+  </div>
+</div>
+
+<div id="pg-questions" class="pg">
+  <div class="sec-hdr"><div class="sec-label">確認清單</div><div class="sec-title">與建築師討論的關鍵問題</div><div class="sec-desc">這四個問題的答案，會直接決定三種切法中哪一條最適合現在的階段。</div></div>
+  <div class="q-grid">
+    <div class="q-card"><div class="q-num">確認問題 01</div><div class="q-title">縱切版「只警告不建議」的使用體驗</div><div class="q-desc">設計師一直看到警告卻不知道怎麼辦，是否比沒有工具更令人沮喪？可接受度是否足夠支撐付費？</div></div>
+    <div class="q-card"><div class="q-num">確認問題 02</div><div class="q-title">M3–M5 顧問閉環的 CAD 標記摩擦</div><div class="q-desc">每次設計版本更新後手動重新標記梯廳、戶型邊界，設計師的操作成本是否可接受？</div></div>
+    <div class="q-card"><div class="q-num">確認問題 03</div><div class="q-title">M5 連鎖影響的粒度</div><div class="q-desc">「受影響元素清單」要細到什麼程度才有用？列出「戶型 B3 需重畫」夠用，還是需要說明怎麼改？</div></div>
+    <div class="q-card"><div class="q-num">確認問題 04</div><div class="q-title">付費模式偏好</div><div class="q-desc">按案收費、月訂閱、還是模組分開定價？設計師習慣在哪個決策點付費？</div></div>
+  </div>
+  <div class="sep"></div>
+  <div class="sec-hdr"><div class="sec-label">選擇建議</div><div class="sec-title">依問題答案對應切法</div></div>
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead><tr><th>如果建築師說…</th><th>建議選擇</th></tr></thead>
+      <tbody>
+        <tr><td>「只有警告沒有建議，我不知道怎麼辦，比沒有工具更煩」</td><td><strong>M3–M5 顧問閉環</strong>，或縱切中至少一個關鍵模組要給建議</td></tr>
+        <tr><td>「CAD 手動標記每次都要重來，我不會用」</td><td><strong>橫切</strong>，先從不需要 CAD 的 M1/M2 開始驗證</td></tr>
+        <tr><td>「連鎖影響是我最痛的點，要知道改一個地方會動到哪裡」</td><td><strong>M3–M5 顧問閉環</strong>，M5 優先</td></tr>
+        <tr><td>「法規查找每次都花很多時間，可以幫我查清楚就夠了」</td><td><strong>橫切</strong>，M1 先做深</td></tr>
+        <tr><td>「我想看完整流程，但每個功能先做薄一點也沒關係」</td><td><strong>縱切</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+<script>
+(function(){
+  var d=document.documentElement,btn=document.getElementById('themeBtn');
+  var dark=localStorage.getItem('dark')==='1'||(localStorage.getItem('dark')===null&&matchMedia('(prefers-color-scheme:dark)').matches);
+  function apply(v){if(v){d.setAttribute('data-dark','');btn.innerHTML=SUN;}else{d.removeAttribute('data-dark');btn.innerHTML=MOON;}}
+  var MOON='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var SUN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  apply(dark);
+  btn&&btn.addEventListener('click',function(){dark=!dark;localStorage.setItem('dark',dark?'1':'0');apply(dark);});
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click',function(){
+      var pg=t.dataset.pg;
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+      document.querySelectorAll('.pg').forEach(function(x){x.classList.remove('active')});
+      t.classList.add('active');
+      var el=document.getElementById(pg);if(el)el.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.coll-hdr').forEach(function(h){
+    h.addEventListener('click',function(){
+      h.classList.toggle('open');
+      var body=h.nextElementSibling;
+      if(body)body.classList.toggle('open');
+    });
+  });
+})();
+</script>
+</body>
+</html>
