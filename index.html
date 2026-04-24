@@ -160,7 +160,7 @@ tr.hl td{background:var(--c-pri-hi);color:var(--c-txt)}
   <div class="sec-hdr">
     <div class="sec-label">MVP 切分策略</div>
     <div class="sec-title">三種路徑，各有取捨</div>
-    <div class="sec-desc">本文件的目是討論 MVP 怎麼切——每條路徑都有成立的理由。請依據團隊資源與最想優先驗證的假設來選擇。</div>
+    <div class="sec-desc">本文件的目的是讓你和建築師一起討論 MVP 怎麼切——每條路徑都有成立的理由，沒有唯一正解。請依據團隊資源與最想優先驗證的假設來選擇。</div>
   </div>
   <div class="card" style="margin-bottom:24px;overflow-x:auto;">
     <table>
@@ -269,6 +269,45 @@ tr.hl td{background:var(--c-pri-hi);color:var(--c-txt)}
     <div class="pc-box cons"><div class="pc-title" style="color:var(--c-ora)">⚠️ 缺點</div><ul class="pc-list"><li>需要 CAD 匯入作為前提，技術門檻比前兩種高</li><li>M3/M4/M5 強依賴，任何一個做不好整個閉環就不完整</li><li>修改建議的「可信度」是關鍵挑戰——設計師是否真的採納？</li><li>前期需要較多設計師配合（標記梯廳、戶型邊界等）</li></ul></div>
   </div>
   <div class="risk"><strong>前提條件：</strong>CAD 匯入策略決定這條路的可行性。MVP 採用「手動標記關鍵點」（DWG 作為底圖，設計師點選梯廳、戶型邊界、外框線），技術門檻最低，但每次版本更新需重新標記是主要摩擦點。</div>
+
+  <div class="sec-hdr" style="margin-top:28px">
+    <div class="sec-label">合規診斷依據</div>
+    <div class="sec-title">M3–M5 MVP 的法規來源</div>
+    <div class="sec-desc">M3–M5 顧問閉環雖然 Phase 1 不包含 M1 法規分析，但仍可先成立，因為最核心的兩個診斷——住宅步行距離與北方日照——屬於全台通用的技術規則，可直接內建。案件專屬的退縮、建蔽率、容積率等條件，則由設計師在 MVP 期間手動輸入。</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:24px">
+    <div class="card" style="border-color:var(--c-pri)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-pri);margin-bottom:8px">第一層｜直接內建</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--c-txt)">硬編碼技術規則</div>
+      <div style="font-size:12px;color:var(--c-muted);line-height:1.7">全台通用、數值固定的條文可直接寫死在系統裡，例如技術規則第 93 條住宅步行距離 50m、技術規則第 39-1 條北方日照退縮公式，以及停車格尺寸、轉彎半徑、坡道坡度與出入口寬度等基礎值。</div>
+    </div>
+    <div class="card" style="border-color:var(--c-gold)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-gold);margin-bottom:8px">第二層｜案件專屬</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--c-txt)">ApplicableRegulationSet</div>
+      <div style="font-size:12px;color:var(--c-muted);line-height:1.7">M1 的正式產出會是本案適用的退縮規定、建蔽率、容積率與特殊條件。因 M3–M5 Phase 1 尚未包含 M1，MVP 期間改由設計師手動輸入退縮距離、建蔽率上限等少數必要值，供 M3 外框驗算使用。</div>
+    </div>
+    <div class="card" style="border-color:var(--c-ora)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-ora);margin-bottom:8px">第三層｜Phase 2 串接</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--c-txt)">各縣市地方規定</div>
+      <div style="font-size:12px;color:var(--c-muted);line-height:1.7">日照陰影規定、捷運退縮與其他地方性條件，因縣市與個案差異較高，MVP 先跳過或人工輸入。Phase 2 串接 M1 後，再由 ApplicableRegulationSet 自動餵給 M3–M5。</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:24px;overflow-x:auto">
+    <table>
+      <thead><tr><th>驗算項目</th><th>法規來源</th><th>MVP 做法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>步行距離 50m</strong></td><td>技術規則第 93 條</td><td>直接內建，不需輸入</td></tr>
+        <tr><td><strong>北方日照退縮</strong></td><td>技術規則第 39-1 條</td><td>直接內建，公式可算</td></tr>
+        <tr><td><strong>外框退縮線、建蔽率</strong></td><td>ApplicableRegulationSet（M1 產出）</td><td>MVP 期間由設計師手動填入幾個必要數值</td></tr>
+        <tr><td><strong>日照陰影（AT-21）</strong></td><td>各縣市規定</td><td>MVP 先跳過或人工輸入，Phase 2 補上</td></tr>
+        <tr><td><strong>捷運退縮</strong></td><td>捷運局平台 / 個案條件</td><td>條件觸發，MVP 先跳過或人工標註</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="risk" style="border-color:var(--c-pri);background:var(--c-pri-hi)">
+    <strong style="color:var(--c-pri)">核心結論：</strong>M3–M5 顧問閉環的 MVP 可行，因為最核心的兩個診斷（步行距離 + 北方日照）都來自全台通用技術規則，可以直接內建。MVP 唯一需要人工輸入的是退縮線與建蔽率等少數案件邊界值，而這些通常是設計師接案初期已知或會先確認的條件；相較於完整 M1 自動化，這個摩擦在早期驗證階段可接受。
+  </div>
+
   <div class="sec-hdr" style="margin-top:28px"><div class="sec-label">核心模組展開</div><div class="sec-title">M3 + M4 + M5 詳細內容</div></div>
   <div class="coll-hdr open"><div class="coll-hdr-left"><span class="badge b-gold">M3</span><div><div class="coll-title">基本骨架（Core 柱位）地下層</div><div class="coll-sub">AT-10, AT-11, AT-12, AT-13, AT-14, AT-15, AT-15a</div></div></div><span class="coll-arrow">▼</span></div>
   <div class="coll-body open">
@@ -280,7 +319,7 @@ tr.hl td{background:var(--c-pri-hi);color:var(--c-txt)}
   <div class="coll-hdr open" style="margin-top:8px"><div class="coll-hdr-left"><span class="badge b-pur">M4</span><div><div class="coll-title">標準層配置同步驗算</div><div class="coll-sub">AT-16, AT-17, AT-17b, AT-18, AT-20, AT-21</div></div></div><span class="coll-arrow">▼</span></div>
   <div class="coll-body open">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
-      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">偵測什麼</div><ul style="list-style:none;display:flex;flex-direction:column;gap:6px;color:var(--c-muted)"><li>• 任一住戶到逃生梯的最長步行距離是否超過 50m（AT-17b, AT-20）</li><li>• 免計容積額度是否即將超限（AT-18）</li><li>• 日照陰影是否合規（AT-21）</li></ul></div>
+      <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">偵測什麼</div><ul style="list-style:none;display:flex;flex-direction:column;gap:6px;color:var(--c-muted)"><li>• 任一住戶到逃生梯的最長步行距離是否超過 50m（AT-17b, AT-20）</li><li>• 免計容積額度是否即將超限（AT-18）</li><li>• 日照陰影（AT-21）屬地方規定，MVP 先跳過或人工輸入，Phase 2 串接 M1 後自動化</li></ul></div>
       <div><div style="font-weight:700;margin-bottom:6px;color:var(--c-txt)">修改建議範例</div><div style="background:var(--c-surf2);border:1px solid var(--c-div);border-radius:8px;padding:10px 12px;color:var(--c-txt);line-height:1.7">「B4 戶步行距離 53m，超標 3m。建議將梯廳 T2 往東移 1.5 柱距（約 4m），可覆蓋 B4 並維持 B1–B3 合規。」</div></div>
     </div>
   </div>
@@ -300,14 +339,14 @@ tr.hl td{background:var(--c-pri-hi);color:var(--c-txt)}
   </div>
   <div class="sec-hdr"><div class="sec-label">開發路徑</div><div class="sec-title">三階段 Roadmap</div></div>
   <div class="phases">
-    <div class="ph-row ph1"><div class="ph-label"><div class="ph-name">Phase 1</div><div class="ph-sub">3–4 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">M3 + M4 + M5 合體：標準層合規診斷 MVP</div><div class="ph-card-desc">CAD 手動標記（方案③）為前提，同步偵測骨架與標準層的合規狀態，給出繪圖修改建議，並標示連鎖影響。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-gold)"></div><div class="ph-item-txt"><strong>M3</strong><span>：北方日照合規確認 + 外框調整建議；Core 候選步行距離概抓</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-pur)"></div><div class="ph-item-txt"><strong>M4</strong><span>：步行距離即時 Live Check + 移位建議；免計容積 Tracker；日照陰影驗證</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>M5</strong><span>：M3/M4 觸發修改時，同步顯示連鎖影響元素清單與影響層級</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-faint)"></div><div class="ph-item-txt"><span>CAD 底圖匯入 + 手動標記介面（梯廳、戶型邊界、外框線）</span></div></div></div><div class="ph-validate"><strong>驗證指標：</strong>設計師採納修改建議率 > 60%；每案節省回推次數 50% 以上。</div></div></div></div>
+    <div class="ph-row ph1"><div class="ph-label"><div class="ph-name">Phase 1</div><div class="ph-sub">3–4 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">M3 + M4 + M5 合體：標準層合規診斷 MVP</div><div class="ph-card-desc">CAD 手動標記（方案③）為前提，同步偵測骨架與標準層的合規狀態，給出繪圖修改建議，並標示連鎖影響。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-gold)"></div><div class="ph-item-txt"><strong>M3</strong><span>：北方日照合規確認 + 外框調整建議；Core 候選步行距離概抓</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-pur)"></div><div class="ph-item-txt"><strong>M4</strong><span>：步行距離即時 Live Check + 移位建議；免計容積 Tracker；AT-21 日照陰影先標為 Phase 2</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>M5</strong><span>：M3/M4 觸發修改時，同步顯示連鎖影響元素清單與影響層級</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-faint)"></div><div class="ph-item-txt"><span>CAD 底圖匯入 + 手動標記介面（梯廳、戶型邊界、外框線）</span></div></div></div><div class="ph-validate"><strong>驗證指標：</strong>設計師採納修改建議率 > 60%；每案節省回推次數 50% 以上。</div></div></div></div>
     <div class="ph-row ph2"><div class="ph-label"><div class="ph-name">Phase 2</div><div class="ph-sub">3–4 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">M1 + M2 串接 + CAD 圖層標記升級</div><div class="ph-card-desc">從案件起點進入系統，法規收斂的結果直接餵給 M3–M5；同時升級 CAD 匯入至方案②，減少手動標記摩擦。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-pri)"></div><div class="ph-item-txt"><strong>M1</strong><span>：適用法規自動彙整，結果直接作為 M3 的合規依據</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-grn)"></div><div class="ph-item-txt"><strong>M2</strong><span>：可建範圍自動產出，直接作為 M3 骨架的空間約束</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-faint)"></div><div class="ph-item-txt"><span>CAD 圖層標記輔助（方案②）：約定命名規範 + CAD 外掛</span></div></div></div><div class="ph-validate"><strong>驗證指標：</strong>同一案子跨多個設計迴圈的留存率；M1 法規收斂是否確實減少 M3 的錯誤發生率。</div></div></div></div>
     <div class="ph-row ph3"><div class="ph-label"><div class="ph-name">Phase 3</div><div class="ph-sub">4–6 個月</div></div><div class="ph-content"><div class="ph-dot"></div><div class="ph-card"><div class="ph-card-title">自動 DWG 解析 + M5 升級 + M6 串接</div><div class="ph-card-desc">消除所有手動輸入摩擦，M5 從「列出清單」升級為「建議最低代價修改策略」，形成完整平台。</div><div class="ph-items"><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>自動幾何解析（方案①）</strong><span>：匯入 DWG 即自動診斷，無需任何標記</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-ora)"></div><div class="ph-item-txt"><strong>M5 升級</strong><span>：從「受影響清單」→「自動建議最低代價修改策略」</span></div></div><div class="ph-item"><div class="ph-dot2" style="background:var(--c-blu)"></div><div class="ph-item-txt"><strong>M6 串接</strong><span>：跨層整合、業主溝通、面積表版本提報</span></div></div></div><div class="ph-validate"><strong>護城河：</strong>自動 DWG 解析一旦穩定，競爭者幾乎無法在短期內複製。這是整個平台最難建立也最難被攻破的壁壘。</div></div></div></div>
   </div>
 </div>
 
 <div id="pg-questions" class="pg">
-  <div class="sec-hdr"><div class="sec-label">確認清單</div><div class="sec-title">與建築師討論的關鍵問題</div><div class="sec-desc"></div></div>
+  <div class="sec-hdr"><div class="sec-label">確認清單</div><div class="sec-title">與建築師討論的關鍵問題</div><div class="sec-desc">這四個問題的答案，會直接決定三種切法中哪一條最適合現在的階段。</div></div>
   <div class="q-grid">
     <div class="q-card"><div class="q-num">確認問題 01</div><div class="q-title">縱切版「只警告不建議」的使用體驗</div><div class="q-desc">設計師一直看到警告卻不知道怎麼辦，是否比沒有工具更令人沮喪？可接受度是否足夠支撐付費？</div></div>
     <div class="q-card"><div class="q-num">確認問題 02</div><div class="q-title">M3–M5 顧問閉環的 CAD 標記摩擦</div><div class="q-desc">每次設計版本更新後手動重新標記梯廳、戶型邊界，設計師的操作成本是否可接受？</div></div>
